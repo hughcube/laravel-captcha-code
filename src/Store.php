@@ -46,6 +46,11 @@ class Store
         $this->generator = $generator;
     }
 
+    public function getDefaultTtl(): int
+    {
+        return $this->defaultTtl;
+    }
+
     public function withDefaultTtl(int $ttl): Store
     {
         $this->defaultTtl = $ttl;
