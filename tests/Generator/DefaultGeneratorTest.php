@@ -28,6 +28,30 @@ class DefaultGeneratorTest extends TestCase
         }
     }
 
+    public function testNonZeroLeading()
+    {
+        $generator = new DefaultGenerator(6, '0123456789', true);
+        $this->assertTrue($generator->isNonZeroLeading());
+
+        for ($i = 0; $i < 1000; $i++) {
+            $code = $generator->get();
+            $this->assertSame(6, strlen($code));
+            $this->assertNotSame('0', $code[0]);
+        }
+
+        // 测试关闭时允许 0 开头
+        $disabledGenerator = new DefaultGenerator(6, '0123456789', false);
+        $this->assertFalse($disabledGenerator->isNonZeroLeading());
+        $hasZero = false;
+        for ($i = 0; $i < 200; $i++) {
+            if ('0' === $disabledGenerator->get()[0]) {
+                $hasZero = true;
+                break;
+            }
+        }
+        $this->assertTrue($hasZero);
+    }
+
     protected function getGenerator($length = null): DefaultGenerator
     {
         return new DefaultGenerator($length, null);

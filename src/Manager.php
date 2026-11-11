@@ -115,7 +115,11 @@ class Manager extends \HughCube\Laravel\ServiceSupport\Manager
 
     public function createDefaultGeneratorDriver(array $config): DefaultGenerator
     {
-        return new DefaultGenerator($config['length'], ($config['string'] ?: null));
+        return new DefaultGenerator(
+            $config['length'],
+            ($config['string'] ?? null),
+            ($config['nonZeroLeading'] ?? $config['non_zero_leading'] ?? false)
+        );
     }
 
     public function getDriversConfigKey(): string

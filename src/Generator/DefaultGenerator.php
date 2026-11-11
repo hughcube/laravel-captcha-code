@@ -21,12 +21,49 @@ class DefaultGenerator implements Generator
 
     protected $maxIndex;
 
-    public function __construct($length, $string = null)
+    /**
+     * @var bool
+     */
+    protected $nonZeroLeading = false;
+
+    /**
+     * @var string
+     */
+    protected $leadingString;
+
+    protected $maxLeadingIndex;
+
+    public function __construct($length, $string = null, $nonZeroLeading = false)
     {
         $this->string = null === $string ? $this->string : $string;
         $this->length = null === $length ? $this->length : $length;
+        $this->nonZeroLeading = (bool) $nonZeroLeading;
 
         $this->maxIndex = 0 >= strlen($this->string) ? 0 : (strlen($this->string) - 1);
+
+        $leadingString = str_replace('0', '', $this->string);
+        $this->leadingString = empty($leadingString) ? $this->string : $leadingString;
+        $this->maxLeadingIndex = 0 >= strlen($this->leadingString) ? 0 : (strlen($this->leadingString) - 1);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isNonZeroLeading(): bool
+    {
+        return $this->nonZeroLeading;
+    }
+
+    /**
+     * @param bool $nonZeroLeading
+     *
+     * @return $this
+     */
+    public function withNonZeroLeading(bool $nonZeroLeading = true): DefaultGenerator
+    {
+        $this->nonZeroLeading = $nonZeroLeading;
+
+        return $this;
     }
 
     /**
@@ -36,8 +73,11 @@ class DefaultGenerator implements Generator
     {
         $code = '';
         for ($i = 1; $i <= $this->length; $i++) {
-            $index = mt_rand(0, $this->maxIndex);
-            $code .= $this->string[$index];
+            if (1 === $i && $this->length > 1 && $this->nonZeroLeading) {
+                $code .= $this->leadingString[mt_rand(0, $this->maxLeadingIndex)];
+            } else {
+                $code .= $this->string[mt_rand(0, $this->maxIndex)];
+            }
         }
 
         return $code;
