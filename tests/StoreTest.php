@@ -61,13 +61,13 @@ class StoreTest extends TestCase
         $store->delete($key);
 
         $ttl = 5;
-        $preCode = range(1000, 9999);
+        $preCode = strval(random_int(1000, 9999));
         $code = $store->getOrSet($key, $preCode, $ttl);
 
         $this->assertNotEmpty($code);
         $this->assertSame($code, $preCode);
         $this->assertSame($code, $store->get($key));
-        $this->assertSame($code, $store->getOrSet($key, range(10000, 99999), $ttl));
+        $this->assertSame($code, $store->getOrSet($key, strval(random_int(10000, 99999)), $ttl));
 
         sleep($ttl);
         $this->assertNotSame($code, $store->getOrRand($key));

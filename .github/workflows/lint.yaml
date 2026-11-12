@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@master
 
       - name: System Setting
         run: |
@@ -18,12 +18,12 @@ jobs:
         run: composer validate
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer update --prefer-stable --prefer-dist --no-interaction --no-progress
 
       - name: Run check-style
         run: composer run-script check-style
 
-      - name: Run php-cs-fxier
+      - name: Run php-cs-fixer
         run: composer run-script fix-style
 
       - name: Run phpstan
