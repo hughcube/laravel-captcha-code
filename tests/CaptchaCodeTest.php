@@ -26,4 +26,14 @@ class CaptchaCodeTest extends TestCase
         $this->assertNotNull($code);
         $this->assertSame($code, CaptchaCode::getOrRand($key));
     }
+
+    public function testRegisterServiceProvider()
+    {
+        $reflection = new \ReflectionClass(CaptchaCode::class);
+        $method = $reflection->getMethod('registerServiceProvider');
+        $method->setAccessible(true);
+        $method->invoke(null, $this->app);
+
+        $this->assertTrue(true);
+    }
 }

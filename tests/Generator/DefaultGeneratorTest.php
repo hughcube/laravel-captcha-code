@@ -50,6 +50,12 @@ class DefaultGeneratorTest extends TestCase
             }
         }
         $this->assertTrue($hasZero);
+
+        // 测试 withNonZeroLeading
+        $this->assertSame($disabledGenerator, $disabledGenerator->withNonZeroLeading(true));
+        $this->assertTrue($disabledGenerator->isNonZeroLeading());
+        $this->assertSame($disabledGenerator, $disabledGenerator->withNonZeroLeading(false));
+        $this->assertFalse($disabledGenerator->isNonZeroLeading());
     }
 
     protected function getGenerator($length = null): DefaultGenerator

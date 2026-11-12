@@ -17,8 +17,11 @@ class StoreTest extends TestCase
 {
     public function testWithDefaultTtl()
     {
+        $this->assertSame(600, $this->getStore()->getDefaultTtl());
+
         $ttl = 1;
         $store = $this->getStore()->withDefaultTtl($ttl);
+        $this->assertSame($ttl, $store->getDefaultTtl());
 
         $key = serialize([__METHOD__, mt_rand()]);
         $store->delete($key);
@@ -130,6 +133,25 @@ class StoreTest extends TestCase
         $store->delete($key);
         $code = $store->getOrRand($key);
         $this->assertFalse($store->validate($key, $code.'---'));
+
+        // 空 code
+        $this->assertFalse($store->validate($key, ''));
+        $this->assertFalse($store->validate($key, null));
+
+        // 不存在的 key
+        $this->assertFalse($store->validate(md5(uniqid()), '123456'));
+    }
+
+    public function testGetOrSetStorageFailed()
+    {
+        $mockStorage = $this->createMock(\HughCube\Laravel\CaptchaCode\Storage\Storage::class);
+        $mockStorage->method('get')->willReturn(null);
+        $mockStorage->method('set')->willReturn(false);
+
+        $generator = new DefaultGenerator(6);
+        $store = new Store($mockStorage, $generator);
+
+        $this->assertFalse($store->getOrSet('test_key'));
     }
 
     protected function getStore()

@@ -74,4 +74,75 @@ class ManagerTest extends TestCase
 
         $this->assertSame($generator, $property->getValue($store));
     }
+
+    public function testMakeStorage()
+    {
+        $manager = new Manager();
+        $reflection = new ReflectionClass($manager);
+
+        $makeStorage = $reflection->getMethod('makeStorage');
+        $makeStorage->setAccessible(true);
+
+        // 正常 object cache
+        $storage = $makeStorage->invoke($manager, ['driver' => 'cache', 'cache' => \Illuminate\Support\Facades\Cache::store()]);
+        $this->assertInstanceOf(Storage::class, $storage);
+
+        // 空 driver
+        $this->expectException(\InvalidArgumentException::class);
+        $makeStorage->invoke($manager, ['driver' => '']);
+    }
+
+    public function testMakeStorageUnknownDriver()
+    {
+        $manager = new Manager();
+        $reflection = new ReflectionClass($manager);
+
+        $makeStorage = $reflection->getMethod('makeStorage');
+        $makeStorage->setAccessible(true);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $makeStorage->invoke($manager, ['driver' => 'unknown_driver']);
+    }
+
+    public function testMakeGenerator()
+    {
+        $manager = new Manager();
+        $reflection = new ReflectionClass($manager);
+
+        $makeGenerator = $reflection->getMethod('makeGenerator');
+        $makeGenerator->setAccessible(true);
+
+        // 下划线 non_zero_leading
+        /** @var \HughCube\Laravel\CaptchaCode\Generator\DefaultGenerator $gen */
+        $gen = $makeGenerator->invoke($manager, ['driver' => 'default', 'length' => 6, 'non_zero_leading' => true]);
+        $this->assertInstanceOf(Generator::class, $gen);
+        $this->assertTrue($gen->isNonZeroLeading());
+
+        // 空 driver
+        $this->expectException(\InvalidArgumentException::class);
+        $makeGenerator->invoke($manager, ['driver' => '']);
+    }
+
+    public function testMakeGeneratorUnknownDriver()
+    {
+        $manager = new Manager();
+        $reflection = new ReflectionClass($manager);
+
+        $makeGenerator = $reflection->getMethod('makeGenerator');
+        $makeGenerator->setAccessible(true);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $makeGenerator->invoke($manager, ['driver' => 'unknown_driver']);
+    }
+
+    public function testGetDriversConfigKeyAndFacadeAccessor()
+    {
+        $manager = new Manager();
+        $this->assertSame('stores', $manager->getDriversConfigKey());
+
+        $reflection = new ReflectionClass($manager);
+        $method = $reflection->getMethod('getPackageFacadeAccessor');
+        $method->setAccessible(true);
+        $this->assertSame('captchaCode', $method->invoke($manager));
+    }
 }
