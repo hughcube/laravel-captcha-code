@@ -145,4 +145,25 @@ class ManagerTest extends TestCase
         $method->setAccessible(true);
         $this->assertSame('captchaCode', $method->invoke($manager));
     }
+
+    public function testNonZeroLeadingEndToEnd()
+    {
+        $this->app['config']->set('captchaCode.stores.non_zero', [
+            'generator' => [
+                'driver'         => 'default',
+                'length'         => 6,
+                'nonZeroLeading' => true,
+            ],
+        ]);
+
+        $manager = new Manager();
+        $store = $manager->store('non_zero');
+
+        for ($i = 0; $i < 200; $i++) {
+            $key = sprintf('test_key_%s_%s', $i, mt_rand());
+            $code = $store->getOrRand($key);
+            $this->assertSame(6, strlen($code));
+            $this->assertNotSame('0', $code[0]);
+        }
+    }
 }
